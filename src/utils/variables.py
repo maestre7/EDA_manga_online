@@ -1,0 +1,27 @@
+
+
+xpath = {
+    "not_found": '//h1[text()="404 Not Found"]',
+    "pop_up": '//button[text()="ACEPTO"]',
+    "upkeep": '//h1[text()="En Mantenimiento"]',
+    "recover_links": '//div[starts-with(@class,"element")]/a',
+    "next_page": '//ul[starts-with(@class,"pagination")]/li[2]/a',
+    "book_chapter": '//a[contains(@style,"display: block;")]',
+    "book_cover": '//img[contains(@class,"book-thumbnail")]',
+    "book_genre": '//h6[contains(@style,"display: inline-block;")]',
+    "book_name00": '//h1[contains(@class,"element-title my-2")]',
+    "book_name01": '//h2[contains(@class,"element-subtitle")]',
+    "book_synonyms": '//span[@class="badge badge-pill badge-transparent p-2 text-truncate"]',
+    "book_synopsis": '//p[@class="element-description"]',
+    "book_demography": '//div[@class="demography shounen"]',
+    "book_type": '//h1[starts-with(@class,"book-type")]',
+    "chapters_all": '//button[@id="show-chapters"]',
+    "chapters_titles": '//li[@class="list-group-item p-0 bg-light upload-link"]/h4/div/div[1]/a',
+    "chapters_urls": '//ul[@class="list-group list-group-flush chapter-list"]/li[1]/div/div[6]/a',
+    "reverse_order": '//a[@class="float-right btn btn-primary"]',
+    "select_chapter_free": '//ul[@class="list-group list-group-flush"]/div/li[]/div/div/ul/li/div/div[6]/a',
+    "select_chapter_free_10": '//ul[@class="list-group list-group-flush"]/li[]/div/div/ul/li/div/div[6]/a',
+    "select_chapter_list": '//ul[@class="list-group list-group-flush"]/div/li[]/h4/div/div[1]/a',
+    "select_chapter_list_10": '//ul[@class="list-group list-group-flush"]/li[]/h4/div/div[1]/a',
+    "select_chapter_one": '//ul[@class="list-group list-group-flush chapter-list"]/li/div/div[4]/a',
+}
