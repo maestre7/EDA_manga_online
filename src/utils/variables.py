@@ -1,8 +1,8 @@
 
-
+#//*[@id="qc-cmp2-ui"]/div[2]/div/button[2]
 xpath = {
     "not_found": '//h1[text()="404 Not Found"]',
-    "pop_up": '//button[text()="ACEPTO"]',
+    "pop_up": '//button/span[text()="ACEPTO"]',
     "upkeep": '//h1[text()="En Mantenimiento"]',
     "recover_links": '//div[starts-with(@class,"element")]/a',
     "next_page": '//ul[starts-with(@class,"pagination")]/li[2]/a',
@@ -13,7 +13,7 @@ xpath = {
     "book_name01": '//h2[contains(@class,"element-subtitle")]',
     "book_synonyms": '//span[@class="badge badge-pill badge-transparent p-2 text-truncate"]',
     "book_synopsis": '//p[@class="element-description"]',
-    "book_demography": '//div[@class="demography shounen"]',
+    "book_demography": '//div[starts-with(@class="demography")]',
     "book_type": '//h1[starts-with(@class,"book-type")]',
     "chapters_all": '//button[@id="show-chapters"]',
     "chapters_titles": '//li[@class="list-group-item p-0 bg-light upload-link"]/h4/div/div[1]/a',

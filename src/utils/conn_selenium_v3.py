@@ -17,7 +17,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import SessionNotCreatedException, WebDriverException
-from undetected_chromedriver import ChromeOptions, Chrome
+#from undetected_chromedriver import ChromeOptions, Chrome
+import undetected_chromedriver as uc
 
 
 
@@ -79,7 +80,7 @@ def conn_link(headless: bool = True, **kwargs) -> webdriver.Chrome:
     
 
 
-def conn_uc(headless: bool = True, folder: str = None) -> Chrome:
+def conn_uc(headless: bool = True, folder: str = None) -> webdriver:
     '''Establishes a Selenium connection using undetected_chromedriver module.
 
     Args:
@@ -99,7 +100,7 @@ def conn_uc(headless: bool = True, folder: str = None) -> Chrome:
     driver = None
 
     try:
-        options = ChromeOptions()
+        options = webdriver.ChromeOptions()
 
         # Folder installation for UC
         temp_folder = os.path.abspath('./uc') if not folder else folder
@@ -107,12 +108,12 @@ def conn_uc(headless: bool = True, folder: str = None) -> Chrome:
         if not path_folder.exists():
             path_folder.mkdir()
 
-        options.user_data_dir = str(temp_folder) # Set profile folder
+        uc.Chrome(user_data_dir= str(temp_folder)) # Set profile folder
 
         if headless:
             options.headless = True  # Run in headless mode (without browser window)
 
-        driver = Chrome(options=options)
+        driver = uc.Chrome(options=options)
 
     except (SessionNotCreatedException, OSError, WebDriverException) as err:
         logger.exception('Exception occurred in conn_uc')
@@ -184,8 +185,8 @@ def click(driver: webdriver.Chrome,
     try:
         by_object = get_by_selector(selector_type)
         wait = WebDriverWait(driver, wait_time)
-        wait.until(EC.element_to_be_clickable((by_object, path)))
-        element = driver.find_element(by_object, path)
+        element = wait.until(EC.element_to_be_clickable((by_object, path)))
+        #element = driver.find_element(by_object, path)
 
         if control is not None:
             elements = driver.find_elements(by_object, path)
@@ -364,7 +365,8 @@ def get_elements(driver: webdriver.Chrome,
 def get_element(driver: webdriver.Chrome, 
                      selector_type: str, 
                      path: str, 
-                     wait_time: int = 30
+                     wait_time: int = 30,
+                     log: bool = True
                      ) -> Optional[Any]:
     '''
     Retrieve the element associated with the given selector and path.
@@ -374,7 +376,8 @@ def get_element(driver: webdriver.Chrome,
         selector_type (str): The type of selector to use (e.g., 'id', 'class_name', 'xpath', etc.).
         selector_path (str): The path or value of the selector.
         wait_time (int, optional): The maximum time to wait for the element to be clickable in seconds. Default is 30.
-    
+        log (bool): Whether to log exceptions as errors or only as information. Default is True.
+        
     Returns:
         Optional[WebElement]: The retrieved element if found, or None if not found or an exception occurred.
     '''
@@ -391,8 +394,11 @@ def get_element(driver: webdriver.Chrome,
         element = driver.find_element(by_object, path)
 
     except (TimeoutException, ElementClickInterceptedException, AttributeError, TypeError) as err:
-        logger.exception(f"{__name__}: {err}, {selector_type}: {path}")
-        raise Exception(f"{__name__}: {err}, {selector_type}: {path}")
+        if log:
+            logger.exception(f"{__name__}: {err}, {selector_type}: {path}")
+            raise Exception(f"{__name__}: {err}, {selector_type}: {path}")
+        else:
+            logger.info(f"{__name__}: {err}, {selector_type}: {path}")
     else:
         logger.info(f"{__name__}: {selector_type}: {path}")
     

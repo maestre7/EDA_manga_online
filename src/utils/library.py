@@ -1,50 +1,65 @@
 
 # Native
 from uuid import uuid4
+from shutil import rmtree
+from datetime import datetime
+from pathlib import Path
+
+# Thrid
+import pandas as pd
 
 # Own
-from conn_selenium_v3 import conn_uc, click, get_elements, get_element
-from variables import xpath
+from utils.conn_selenium_v3 import conn_uc, click, get_elements, get_element
+from utils.variables import xpath
 
 
 class Library:
 
-    def __init__(self, url) -> None:
+    def __init__(self, url, type) -> None:
         self.url = url
+        self.type = type
+        self.out = []
+        self.driver = None
+        self.create_reg()
 
     def main_process(self) -> None:
+        print("main_process")
         try:
             self.initiation()
             self.get_books()
             self.collection_process()
+            out_df = pd.DataFrame(self.out)
+            out_df.to_csv(f"{self.to_directory}/{self.type}.csv")
 
         except Exception as err:
             print(f"{__name__}: {err}")
 
         finally:
-            self.driver.quit()
+            if self.driver:
+                self.driver.quit()
 
     def initiation(self) -> None:
-
+        print("initiation")
         try:
             self.driver = conn_uc(headless = False)
             self.driver.get(self.url)
-            self.check_pop_up()
+            pop_up = self.check_pop_up()
+            print("pop_up:", pop_up)
 
         except Exception as err:
-            raise Exception(f"{__name__}: {err}, self.url: {self.url}")
+            raise Exception(f"{__name__}-initiation: {err}, self.url: {self.url}")
         
     def get_books(self):
-
+        print("get_books")
         try:
             we_books_links = get_elements(self.driver, "xpath", xpath["recover_links"])
             self.list_urls = [book.get_attribute('href') for book in we_books_links]
 
         except Exception as err:
-            raise Exception(f"{__name__}: {err}, xpath: {xpath['recover_links']}")
+            raise Exception(f"{__name__}-get_books: {err}, xpath: {xpath['recover_links']}")
         
     def collection_process(self):
-
+        print("collection_process")
         try:
             for book_url in self.list_urls:
                 self.open_tab(book_url)
@@ -52,7 +67,7 @@ class Library:
                 self.closed_tad()
 
         except Exception as err:
-            raise Exception(f"{__name__}: {err}, self.list_urls: {self.list_urls}")
+            raise Exception(f"{__name__}-collection_process: {err}, self.list_urls: {self.list_urls}")
 
     
     def open_tab(self, new_url):
@@ -68,7 +83,7 @@ class Library:
 
   
     def get_information(self) :
-        
+        print("get_information")
         try:
             list_name = []
             # UUID
@@ -95,16 +110,24 @@ class Library:
                 [list_name.append(i.text) for i in book_synonyms]
             # Genre
             book_genre = get_element(self.driver, "xpath", xpath["book_genre"])
-            list_genre = [g.text for g in book_genre]
+            str_genre = ', '.join([g.text for g in book_genre])
             # Synopsis
             book_synopsis = get_element(self.driver, "xpath", xpath["book_synopsis"])
             synopsis = book_synopsis.text if book_synopsis else None
 
+            str_name = ":::".join(list_name)
+            dict_out = {"uuid": uuid, "type": type, "demography": demography, "genre": str_genre }
+            dict_out["synopsis"] = synopsis
+            dict_out["name"] = name
+            #dict_out["synonyms"] = str_name
+            self.out.append(dict_out)
+
         except Exception as err:
+            print("err:", err)
             res_pop_up = self.check_pop_up() # pop_up: //button[text()="ACEPTO"]
 
             if res_pop_up:
-                "vuelve a ejecutar el proceso_recolector"
+                print("vuelve a ejecutar el proceso_recolector")
                 self.get_information()
             else:
                 res_not_found = self.check_not_found() # not_found: //h1[text()="404 Not Found"]
@@ -123,7 +146,7 @@ class Library:
             raise Exception(f"{__name__}: {err}")
 
     def check_pop_up(self):
-
+        print("check_pop_up")
         try:
             return click(self.driver, "xpath", xpath['pop_up'], log = False)
         except Exception as err:
@@ -135,6 +158,16 @@ class Library:
             return get_element(self.driver, "xpath", xpath['upkeep'], log = False)
         except Exception as err:
             raise Exception(f"{__name__}: {err}, xpath: {xpath['upkeep']}")
+        
+    def create_reg(self):
+        time = datetime.now()
+        to_directory = "./data/"
+        to_directory += f"{time.day}_{time.month}"
+        # Carpeta destino
+        self.to_directory = Path(to_directory)
+
+        if not self.to_directory.exists():
+           self.to_directory.mkdir()
     
 def main():
     app = Library()
