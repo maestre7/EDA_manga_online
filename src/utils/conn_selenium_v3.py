@@ -2,6 +2,7 @@
 # Native
 import logging
 import os
+from time import sleep
 from pathlib import Path
 from typing import Union, Optional, List, Any
 
@@ -15,7 +16,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.common.exceptions import ElementClickInterceptedException, NoSuchElementException
 from selenium.common.exceptions import SessionNotCreatedException, WebDriverException
 #from undetected_chromedriver import ChromeOptions, Chrome
 import undetected_chromedriver as uc
@@ -25,17 +26,17 @@ import undetected_chromedriver as uc
 logger = logging.getLogger(__name__)
 
 options = {
-    'ignore-certificate-errors': None,
-    'ignore-ssl-errors': None,
-    'disable-notifications': None,
-    'no-sandbox': None,
-    'verbose': None,
-    'disable-gpu': None,
-    'disable-extensions': None,
-    'disable-software-rasterizer': None,
-    'start-maximized': None,
-    'disable-dev-shm-usage': None,
-    'disable-infobars': None
+    'ignore-certificate-errors': True,
+    'ignore-ssl-errors': True,
+    'disable-notifications': True,
+    'no-sandbox': True,
+    'verbose': True,
+    'disable-gpu': True,
+    'disable-extensions': True,
+    'disable-software-rasterizer': True,
+    'start-maximized': True,
+    'disable-dev-shm-usage': True,
+    'disable-infobars': True
 }
 
 
@@ -184,10 +185,15 @@ def click(driver: webdriver.Chrome,
 
     try:
         by_object = get_by_selector(selector_type)
-        wait = WebDriverWait(driver, wait_time)
-        element = wait.until(EC.element_to_be_clickable((by_object, path)))
-        #element = driver.find_element(by_object, path)
 
+        
+
+        #if isinstance(wait_time, int) or isinstance(wait_time, float):
+        wait = WebDriverWait(driver, wait_time)
+        wait.until(EC.element_to_be_clickable((by_object, path)))
+
+        element = driver.find_element(by_object, path)
+        
         if control is not None:
             elements = driver.find_elements(by_object, path)
             if control >= len(elements):
@@ -197,7 +203,7 @@ def click(driver: webdriver.Chrome,
         element.click()
         success = True
 
-    except (TimeoutException, ElementClickInterceptedException, AttributeError, IndexError, TypeError) as err:
+    except (TimeoutException, ElementClickInterceptedException, NoSuchElementException, AttributeError, IndexError, TypeError) as err:
         if log:
             logger.exception(f'{__name__}: {err}, {selector_type}: {path}')
             raise Exception(f"{__name__}: {err}, {selector_type}: {path}")
@@ -205,7 +211,7 @@ def click(driver: webdriver.Chrome,
             logger.info(f'{__name__}: {err}, {selector_type}: {path}')
 
     else:
-        logger.info(f'{__name__}: {selector_type}: {path}')
+        logger.info(f'{__name__}: {selector_type}: {path}, {isinstance(wait_time, int)} or {isinstance(wait_time, float)}')
 
     return success
 
@@ -403,3 +409,42 @@ def get_element(driver: webdriver.Chrome,
         logger.info(f"{__name__}: {selector_type}: {path}")
     
     return element
+
+
+def center_scroll(wde, wait_time: float=0.5, log: bool = True):
+    '''Centers the scroll on the webdriver_element.
+    
+    Args:
+        wde (WebDriver Element): The WebDriver element to center the scroll on.
+        wait_time (float, optional): The amount of time to wait after scrolling (in seconds). Default is 0.5.
+        log (bool): Whether to log exceptions as errors or only as information. Default is True.
+
+    Returns:
+        bool: Returns True if the scroll was successfully centered, or False if an exception occurred.
+    
+    Raises:
+        WebDriverException: If there is an exception related to the WebDriver.
+        ElementClickInterceptedException: If another element is blocking the action.
+    '''
+    
+    result = None
+           
+    try:
+        wde.location_once_scrolled_into_view
+        
+        if wait_time is not None:
+            sleep(wait_time)
+            
+        result = True
+    
+    except (WebDriverException, ElementClickInterceptedException) as err:
+        if log:
+            logger.exception(f"{__name__}-center_scroll: {err}")
+            raise Exception(f"{__name__}-center_scroll: {err}")
+        else:
+            logger.info(f"{__name__}-center_scroll: {err}")
+            result = False
+    else:
+        logger.info(f"{__name__}-center_scroll: Ok")
+
+    return result
