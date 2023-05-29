@@ -24,9 +24,7 @@ Las demografías en el cómic asiático se refieren al público objetivo al que 
 
 5. **Kodomo**: Los cómics kodomo están dirigidos principalmente a niños pequeños. Estos cómics suelen tener un tono educativo y entretenido, con historias simples y personajes coloridos. Los cómics kodomo pueden abarcar una variedad de géneros, como la comedia y la aventura.
 
-Espero que esta presentación les haya brindado una mejor comprensión de los cómics asiáticos y las dem
-
-ografías a las que se dirigen. ¡Disfruten explorando este fascinante mundo del cómic! Si tienen alguna pregunta, estaré encantado de ayudarles.
+Espero que esta presentación les haya brindado una mejor comprensión de los cómics asiáticos y las demografías a las que se dirigen. ¡Disfruten explorando este fascinante mundo del cómic! Si tienen alguna pregunta, estaré encantado de ayudarles.
  
 
 
